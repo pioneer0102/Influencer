@@ -11,10 +11,10 @@ let usersApi = mockApi.components.examples.auth_users.value;
 
 /* eslint-disable camelcase */
 
-mock.onGet('/api/auth/sign-in').reply(async (config) => {
+mock.onGet('/api/auth/login').reply(async (config) => {
   const data = JSON.parse(config.data);
   const { email, password } = data;
-  const user = _.cloneDeep(usersApi.find((_user) => _user.data.email === email));
+  const user = _.cloneDeep(usersApi.find((_user) => _user.email === email));
 
   const error = [];
 
@@ -35,7 +35,7 @@ mock.onGet('/api/auth/sign-in').reply(async (config) => {
   if (error.length === 0) {
     delete user.password;
 
-    const access_token = generateJWTToken({ id: user.uuid });
+    const access_token = generateJWTToken({ id: user.user_id });
 
     const response = {
       user,
@@ -55,11 +55,11 @@ mock.onGet('/api/auth/access-token').reply((config) => {
   if (verifyJWTToken(access_token)) {
     const { id } = jwtDecode(access_token);
 
-    const user = _.cloneDeep(usersApi.find((_user) => _user.uuid === id));
+    const user = _.cloneDeep(usersApi.find((_user) => _user.user_id === id));
 
     delete user.password;
 
-    const updatedAccessToken = generateJWTToken({ id: user.uuid });
+    const updatedAccessToken = generateJWTToken({ id: user.user_id });
 
     const response = {
       user,
@@ -75,7 +75,7 @@ mock.onGet('/api/auth/access-token').reply((config) => {
 mock.onPost('/api/auth/sign-up').reply((request) => {
   const data = JSON.parse(request.data);
   const { displayName, password, email } = data;
-  const isEmailExists = usersApi.find((_user) => _user.data.email === email);
+  const isEmailExists = usersApi.find((_user) => _user.email === email);
   const error = [];
 
   if (isEmailExists) {
@@ -87,7 +87,7 @@ mock.onPost('/api/auth/sign-up').reply((request) => {
 
   if (error.length === 0) {
     const newUser = {
-      uuid: FuseUtils.generateGUID(),
+      user_id: FuseUtils.generateGUID(),
       from: 'custom-db',
       password,
       role: 'admin',
@@ -106,7 +106,7 @@ mock.onPost('/api/auth/sign-up').reply((request) => {
 
     delete user.password;
 
-    const access_token = generateJWTToken({ id: user.uuid });
+    const access_token = generateJWTToken({ id: user.user_id });
 
     const response = {
       user,
@@ -123,7 +123,7 @@ mock.onPost('/api/auth/user/update').reply((config) => {
   const { user } = data;
 
   usersApi = usersApi.map((_user) => {
-    if (user.uuid === user.id) {
+    if (user.user_id === user.id) {
       return _.merge(_user, user);
     }
     return _user;

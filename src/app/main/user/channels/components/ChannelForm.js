@@ -12,6 +12,8 @@ import {
     InputAdornment
 } from '@mui/material';
 import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addChannel, selectChannel, updateChannel } from '../store/channelSlice';
 
 const schema = yup.object().shape({
     media: yup.string().required("You must enter a Media"),
@@ -20,19 +22,31 @@ const schema = yup.object().shape({
 
 const ChannelForm = (props) => {
     const { open, onClose, action } = props;
+    const dispatch = useDispatch();
     const { control, handleSubmit, reset, formState } = useForm({
         mode: 'onChange',
         resolver: yupResolver(schema)
     });
     const { isValid, dirtyFields, errors } = formState;
+    const channel = useSelector(selectChannel);
 
     const onSubmit = (data) => {
-        console.log(data);
+        if (action == "add") {
+            dispatch(addChannel(data));
+        }
+        if (action == "edit") {
+            const updatedData = {
+                id: channel.id,
+                data: data
+            }
+            dispatch(updateChannel(updatedData));
+        }
+        onClose();
     };
 
-    // useEffect(() => {
-    //     reset({...channel});
-    // }, [channel, reset]);
+    useEffect(() => {
+        reset({ ...channel });
+    }, [channel, reset]);
 
     return (
         <div>
@@ -117,7 +131,7 @@ const ChannelForm = (props) => {
                         type="submit"
                         onClick={handleSubmit(onSubmit)}
                     >
-                        <span>Ok</span>
+                        {action == "add" ? <span>Add</span> : <span>Save</span>}
                     </Button>
                 </DialogActions>
             </Dialog>

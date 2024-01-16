@@ -9,7 +9,7 @@ const Breadcrumb = ({ breadCrumbs }) => {
                 <React.Fragment key={index}>
                     {item.url ? (
                         <Typography
-                            className={`text-18 md:text-18 font-bold tracking-tight ${
+                            className={`text-18 md:text-24 font-bold tracking-tight ${
                                 index === breadCrumbs.length - 1 && index !== 0
                                     ? 'text-red-500'
                                     : ''
@@ -22,7 +22,7 @@ const Breadcrumb = ({ breadCrumbs }) => {
                         </Typography>
                     ) : (
                         <span
-                            className={`text-18 md:text-18 font-bold tracking-tight ${
+                            className={`text-18 md:text-24 font-bold tracking-tight ${
                                 index === breadCrumbs.length - 1 && index !== 0
                                     ? 'text-red-500'
                                     : ''

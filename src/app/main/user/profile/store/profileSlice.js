@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
     createAsyncThunk,
     createEntityAdapter,
@@ -8,22 +9,26 @@ import { BASE_URL } from 'src/constants';
 export const getUser = createAsyncThunk(
     'profileApp/getUser',
     async () => {
-        const response = await axios.get(BASE_URL+'api/user');
+        const response = await axios.get(BASE_URL + '/api/user');
         return response.data;
     }
 );
 
 export const updateUser = createAsyncThunk(
     'profileApp/updateUser',
-    async () => {
-        const response = await axios.get(BASE_URL+'api/admin/me');
+    async (data) => {
+        const response = await axios.patch(BASE_URL + '/api/admin/me', data);
         return response.data;
     }
 );
 
+export const selectUpdatedUser = ({ profileApp }) => profileApp.profile.user;
+
 const profileSlice = createSlice({
     name: 'profileApp/profile',
-    initialState: {},
+    initialState: {
+        user: {}
+    },
     reducers: {},
     extraReducers: (builder) => {
         builder
@@ -31,7 +36,7 @@ const profileSlice = createSlice({
                 console.log(action.payload);
             })
             .addCase(updateUser.fulfilled, (state, action) => {
-                console.log(action.payload);
+                state.user = action.payload;
             })
     }
 });

@@ -1,5 +1,8 @@
 import './api/auth-api';
+import './api/user-api';
 import './api/notifications-api';
+import './api/channel-api';
+import './api/link-api';
 import history from '@history';
 import mock from './mock';
 

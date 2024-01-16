@@ -21,31 +21,28 @@ import {
     DialogContent,
     TablePagination,
 } from '@mui/material';
+import { selectAllLinks } from '../store/linkSlice';
+
+const options = {
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
+};
 
 const LinkTable = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    const allLinks = useSelector(selectAllLinks);
 
     const [openActionMeun, setActionMeun] = useState(null);
     const open = Boolean(openActionMeun);
     const [selectedChannelId, setSelectedChannelId] = useState(0);
     const [confirmDialog, setConfirmDialog] = useState(false);
-
-    // const filter = useSelector(selectFilter);
-    // const users = useSelector(selectAllUsers);
-    // const totalCount = useSelector(selectTotalCount);
-
-    // const { isLoading, isError } = useQuery(
-    //     ['adminUsers', filter],
-    //     async () => {
-    //         try {
-    //             const result = await getUsers(filter);
-    //             dispatch(setUserEntityAdapter(result));
-    //         } catch (error) {
-    //             console.log(error);
-    //         }
-    //     }
-    // );
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [page, setPage] = useState(0);
 
     const handleAction = (event) => {
         setActionMeun(event.currentTarget);
@@ -70,14 +67,6 @@ const LinkTable = () => {
 
     const closeConfirmDialog = () => setConfirmDialog(false);
 
-    const handleChange = (type, value) => {
-        if (type === 'rowsPerPage') {
-            // dispatch(setFilter({ ...filter, page: 0, [type]: value }));
-        } else {
-            // dispatch(setFilter({ ...filter, [type]: value }));
-        }
-    };
-
     return (
         <div className="w-full flex flex-col py-24 px-24 md:px-24">
             <Paper className="flex flex-col py-16 px-16 overflow-auto rounded-md">
@@ -97,56 +86,72 @@ const LinkTable = () => {
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {/* {
-                            !isLoading &&
-                            !isError &&
-                            channels.map((channel, index) => {
-                                return (
-                                    <Tr>
-                                        <Td align="left">
-                                            <Typography
-                                                color="text.secondary"
-                                                className="text-16 md:pt-16"
-                                            >
-                                                {channel.media}
-                                            </Typography>
-                                        </Td>
-                                        <Td align="left">
-                                            <Typography
-                                                color="text.secondary"
-                                                className="text-16 md:pt-16"
-                                            >
-                                                {channel.channel}
-                                            </Typography>
-                                        </Td>
-                                        <Td align="left" className="md:pt-16">
-                                            <IconButton
-                                                id={channel.id}
-                                                onClick={handleAction}
-                                            >
-                                                <MoreHoriz />
-                                            </IconButton>
-                                        </Td>
-                                    </Tr>
-                                );
-                            })
-                        } */}
+                        {
+                            allLinks.slice(rowsPerPage * page, rowsPerPage * page + rowsPerPage)
+                                .map((link, index) => {
+                                    return (
+                                        <Tr key={index}>
+                                            <Td align="left">
+                                                <Typography
+                                                    color="text.secondary"
+                                                    className="text-16 md:pt-16"
+                                                >
+                                                    {new Date(link.created_at).toLocaleDateString(
+                                                        'en-US',
+                                                        options
+                                                    )}
+                                                </Typography>
+                                            </Td>
+                                            <Td align="left">
+                                                <Typography
+                                                    color="text.secondary"
+                                                    className="text-16 md:pt-16"
+                                                >
+                                                    {link.game.name}
+                                                </Typography>
+                                            </Td>
+                                            <Td align="left">
+                                                <Typography
+                                                    color="text.secondary"
+                                                    className="text-16 md:pt-16"
+                                                >
+                                                    {link.utm_medium.split('_').slice(1).join('/')}
+                                                </Typography>
+                                            </Td>
+                                            <Td align="left">
+                                                <Typography
+                                                    color="text.secondary"
+                                                    className="text-12 md:pt-16"
+                                                >
+                                                    {link.link_game_home}
+                                                </Typography>
+                                                <Typography
+                                                    color="text.secondary"
+                                                    className="text-12 md:pt-16"
+                                                >
+                                                    {link.link_landing}
+                                                </Typography>
+                                            </Td>
+                                        </Tr>
+                                    );
+                                })
+                        }
                     </Tbody>
                 </Table>
-                {/* {users.length > 0 && (
+                {allLinks.length > 0 && (
                     <div className="flex md:flex-row flex-col items-center border-t-2 mt-16 py-8">
                         <Typography
                             className="text-16 text-center font-medium"
                             color="text.secondary"
                         >
-                            {t('users.total')} : {totalCount}
+                            Total Links : {allLinks.length}
                         </Typography>
                         <TablePagination
                             className="flex-1 overflow-scroll"
                             component="div"
-                            count={totalCount}
-                            rowsPerPage={filter.rowsPerPage}
-                            page={filter.page}
+                            count={allLinks.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
                             backIconButtonProps={{
                                 'aria-label': 'Previous Page'
                             }}
@@ -154,28 +159,14 @@ const LinkTable = () => {
                                 'aria-label': 'Next Page'
                             }}
                             onPageChange={(event, newPage) =>
-                                handleChange('page', parseInt(newPage, 10))
+                                setPage(parseInt(newPage, 10))
                             }
                             onRowsPerPageChange={(event) => {
-                                handleChange(
-                                    'rowsPerPage',
-                                    parseInt(event.target.value, 10)
-                                );
+                                setRowsPerPage(parseInt(event.target.value, 10));
                             }}
                         />
                     </div>
-                )} */}
-                {/* {isLoading ? (
-                    <FuseLoading />
-                ) : isError || users.length === 0 ? (
-                    <div className="flex flex-1 items-center justify-center h-full py-24">
-                        <Typography color="text.secondary" variant="h5">
-                            {t('noData')}
-                        </Typography>
-                    </div>
-                ) : (
-                    <></>
-                )} */}
+                )}
             </Paper>
             <Menu
                 id="user-action-menu"

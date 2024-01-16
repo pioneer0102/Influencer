@@ -56,7 +56,6 @@ function AuthProvider({ children }) {
       if (message) {
         dispatch(showMessage({ message }));
       }
-
       Promise.all([
         dispatch(setUser(user)),
         // You can receive data in here before app initialization

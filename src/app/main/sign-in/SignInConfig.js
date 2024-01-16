@@ -28,7 +28,7 @@ const SignInConfig = {
     {
       path: 'sign-in',
       element: <SignInPage />,
-    },
+    }
   ],
 };
 

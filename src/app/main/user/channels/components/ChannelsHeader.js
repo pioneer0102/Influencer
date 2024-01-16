@@ -9,12 +9,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import Breadcrumb from 'app/shared-components/Breadcrumbs';
 // import { setFilter, selectFilter } from '../store/userSlice';
 import ChannelForm from './ChannelForm';
+import { initializeChannel } from '../store/channelSlice';
+import { selectUser } from 'app/store/userSlice';
 
 const breadCrumbs = [{ name: 'Channels', url: null }];
 
 const ChannelsHeader = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    const user = useSelector(selectUser);
 
     const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -25,7 +28,17 @@ const ChannelsHeader = () => {
     //         setFilter({ ...filter, page: 0, searchText: event.target.value })
     //     );
     // };
-    const openDialog = () => setDialogOpen(true);
+    const openDialog = () => {
+        dispatch(initializeChannel({
+            id: '',
+            media: '',
+            channel: '',
+            user_id: user.user_id,
+            updated_at: '',
+            created_at: ''
+        }));
+        setDialogOpen(true);
+    };
     const closeDialog = () => setDialogOpen(false);
 
     return (

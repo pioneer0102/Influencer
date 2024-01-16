@@ -2,6 +2,8 @@ import FuseUtils from '@fuse/utils/FuseUtils';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import jwtServiceConfig from './jwtServiceConfig';
+import { BASE_URL } from 'src/constants';
+// Create an instance of axios
 
 /* eslint-disable camelcase */
 
@@ -64,11 +66,9 @@ class JwtService extends FuseUtils.EventEmitter {
   signInWithEmailAndPassword = (email, password) => {
     return new Promise((resolve, reject) => {
       axios
-        .get(jwtServiceConfig.signIn, {
-          data: {
-            email,
-            password,
-          },
+        .post(jwtServiceConfig.signIn, {
+          email: email,
+          password: password,
         })
         .then((response) => {
           if (response.data.user) {
@@ -79,6 +79,47 @@ class JwtService extends FuseUtils.EventEmitter {
             reject(response.data.error);
           }
         });
+    });
+  };
+
+  signInWithGoogle = (data) => {
+    return new Promise((resolve, reject) => {
+      axios
+        .get(jwtServiceConfig.signIn, data)
+        .then((response) => {
+          if (response.data.user) {
+            this.setSession(response.data.access_token);
+            resolve(response.data.user);
+            this.emit('onLogin', response.data.user);
+          } else {
+            reject(response.data.error);
+          }
+        });
+      // axios.get('api/auth/login', data)
+      // .then((response) => {
+      //   console.log(response.data)
+      //     if (response.data.status == "success") {
+      //         this.setSession(response.data.access_token, response.data.refresh_token);
+      //         const redirectUrl = localStorage.getItem('redirect_url') !== undefined ? localStorage.getItem('redirect_url') : '/home';
+      //         localStorage.removeItem('redirect_url');
+
+      //         var user = {
+      //             data: {
+      //                 displayName: "",
+      //                 email: data.email,
+      //                 photoURL: ""
+      //             },
+      //             redirectUrl: redirectUrl,
+      //             role: 'user'
+      //         }
+      //         resolve(user);
+      //     } else {
+      //         reject(response.data.error);
+      //     }
+      // })
+      // .catch((error) => {
+      //     reject(error);
+      // })
     });
   };
 

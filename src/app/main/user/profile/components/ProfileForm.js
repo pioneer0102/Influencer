@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import Box from '@mui/system/Box';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Controller, useForm } from 'react-hook-form';
 import { showMessage } from 'app/store/fuse/messageSlice';
 import { yupResolver } from '@hookform/resolvers/yup/dist/yup';
@@ -13,7 +13,8 @@ import {
     TextField,
     InputAdornment
 } from '@mui/material';
-import { getUser } from '../store/profileSlice';
+import { selectUser, setUser } from 'app/store/userSlice';
+import { updateUser, selectUpdatedUser } from '../store/profileSlice';
 
 const schema = yup.object().shape({
     firstname: yup.string().required('You must enter a Fist Name'),
@@ -26,13 +27,12 @@ const schema = yup.object().shape({
 
 const ProfileForm = () => {
     const dispatch = useDispatch();
+    const user = useSelector(selectUser);
+    const updatedUser = useSelector(selectUpdatedUser);
     const { control, handleSubmit, reset, formState } = useForm({
         mode: 'onChange',
         resolver: yupResolver(schema)
     });
-    useEffect(() => {
-        dispatch(getUser());
-    }, [dispatch]);
 
     const [showUpload, setShowUpload] = useState(false);
 
@@ -40,14 +40,14 @@ const ProfileForm = () => {
 
     const handleUpload = (state) => setShowUpload(state);
     const onSubmit = (data) => {
-        console.log(data);
-        const successMessage = 'User updated successfully!';
-        dispatch(showMessage({ message: successMessage, variant: 'success' }));
+        dispatch(updateUser(data));
+        dispatch(setUser(updateUser));
+        dispatch(showMessage({ message: "Your profile updated successfully!", variant: 'success' }));
     };
 
-    // useEffect(() => {
-    //     reset({ ...user });
-    // }, [user, reset]);
+    useEffect(() => {
+        reset({ ...user });
+    }, [user, reset]);
 
     return (
         <div className="w-full min-h-full flex flex-col">
@@ -145,8 +145,8 @@ const ProfileForm = () => {
                             <TextField
                                 className="mt-32"
                                 {...field}
-                                label="Phone"
-                                placeholder="Phone"
+                                label="Vat Number"
+                                placeholder="Vat Number"
                                 id="vat_number"
                                 error={!!errors.vat_number}
                                 helperText={errors?.vat_number?.message}
@@ -157,7 +157,7 @@ const ProfileForm = () => {
                                     startAdornment: (
                                         <InputAdornment position="start">
                                             <FuseSvgIcon size={24}>
-                                                heroicons-solid:phone
+                                                heroicons-solid:currency-dollar
                                             </FuseSvgIcon>
                                         </InputAdornment>
                                     )
